@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Three sliders on a teal rounded square: playback controls and quality. -->
+  <rect x="6" y="6" width="104" height="104" rx="24" fill="#0f9d8a"/>
+  <path d="M32 26V90M58 26V90M84 26V90" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".55"/>
+  <g fill="#fff">
+    <circle cx="32" cy="70" r="10"/>
+    <circle cx="58" cy="40" r="10"/>
+    <circle cx="84" cy="58" r="10"/>
+  </g>
+  <!-- Plus badge with a white separation ring. -->
+  <circle cx="98" cy="98" r="27" fill="#fff"/>
+  <circle cx="98" cy="98" r="22" fill="#1c1c1e"/>
+  <path d="M98 84V112M84 98H112" stroke="#fff" stroke-width="8"/>
+</svg>

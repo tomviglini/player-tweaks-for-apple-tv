@@ -1,0 +1,8 @@
+/* Hide likely Apple TV player gradients without removing the controls themselves. */
+[class*="scrim__gradient"],
+[class*="video-player-scrim"] > div[style*="linear-gradient"] {
+  opacity: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  pointer-events: none !important;
+}

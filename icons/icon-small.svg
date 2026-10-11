@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- 16px variant of icon.svg: two sliders with thicker tracks and bigger knobs, and a bigger badge and plus. -->
+  <rect x="4" y="4" width="108" height="108" rx="22" fill="#0f9d8a"/>
+  <path d="M36 24V92M76 24V60" stroke="#fff" stroke-width="12" stroke-linecap="round" opacity=".6"/>
+  <g fill="#fff">
+    <circle cx="36" cy="70" r="15"/>
+    <circle cx="76" cy="38" r="15"/>
+  </g>
+  <!-- Plus badge with a white separation ring. -->
+  <circle cx="94" cy="94" r="34" fill="#fff"/>
+  <circle cx="94" cy="94" r="28" fill="#1c1c1e"/>
+  <path d="M94 76V112M76 94H112" stroke="#fff" stroke-width="12"/>
+</svg>
