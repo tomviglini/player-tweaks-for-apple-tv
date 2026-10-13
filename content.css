@@ -1,6 +1,8 @@
-/* Hide likely Apple TV player gradients without removing the controls themselves. */
-[class*="scrim__gradient"],
-[class*="video-player-scrim"] > div[style*="linear-gradient"] {
+/* Hide likely Apple TV player gradients without removing the controls themselves, while
+   the setting is on. content.js marks other dark gradients with data-player-tweaks-gradient. */
+html[data-player-tweaks-hide-gradient] [class*="scrim__gradient"],
+html[data-player-tweaks-hide-gradient] [class*="video-player-scrim"] > div[style*="linear-gradient"],
+html[data-player-tweaks-hide-gradient] [data-player-tweaks-gradient] {
   opacity: 0 !important;
   background: transparent !important;
   background-image: none !important;

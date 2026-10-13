@@ -92,8 +92,8 @@ Ground rules
    - Check manifest permissions and host permissions. Each one must be needed
      and explained.
    - Confirm there is no remote code, that the single purpose still holds, and
-     that the listing text and review notes in docs/publishing.md still match
-     the code.
+     that the listing texts, privacy answers and test instructions in
+     docs/store/README.md still match the code and PRIVACY.md.
 
 7. Licenses and packaging
    - LICENSE and THIRD_PARTY_NOTICES.md exist and are inside both zips.
@@ -104,10 +104,13 @@ Ground rules
      - the status table and the affected sections;
      - the open items;
      - the sources table, with dates and versions;
-     - a new dated entry at the top of the review log. It names the reviewers
-       (the owner, plus the AI tool and model), the commit reviewed, the scope,
-       each finding with evidence and the action taken or proposed, and what
-       was not checked.
+     - a new dated entry at the top of the review log:
+       - when nothing is found, one line with the date, the version, the
+         commit or tag reviewed and the reviewers (the owner, plus the AI tool and
+         model), saying the sources are unchanged;
+       - otherwise, a full entry naming the reviewers, the commit reviewed,
+         the scope, each finding with evidence and the action taken or
+         proposed, and what was not checked.
    - Then summarize for the owner, most important first:
      - anything blocking a release or publication;
      - proposed changes, with the exact wording;

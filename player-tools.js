@@ -8,6 +8,8 @@
   const CONFIG_OVERRIDES_KEY = "mk-hlsjs-config-overrides";
   // Apple's auto-subtitle triggers: on mute, on 10 s skip back, on audio/UI language mismatch.
   const AUTO_SUBTITLE_PREF = /^tv\+pref:(som|sosb|solm)-/;
+  // content.css and content.js hide the dark gradient only while <html> has this attribute.
+  const HIDE_GRADIENT_ATTRIBUTE = "data-player-tweaks-hide-gradient";
   // How long after a stream starts the saved subtitle preference overrides the page's own pick.
   const SUBTITLE_GUARD_MS = 15000;
   const CONFIG_OVERRIDES = {
@@ -27,6 +29,9 @@
     abrBandWidthUpFactor: 1,
     abrLowSampleBandwidthFactor: 1
   };
+  // Auto keeps Apple's own settings. The pinning flag only unlocks the variantId setter,
+  // so switching from Auto to a locked quality mid-video still works.
+  const AUTO_CONFIG_OVERRIDES = { allowManualLevelSelectInProd: true };
   // Events from our UI that must not reach the player's click and keyboard shortcuts.
   const ISOLATED_EVENTS = [
     "click", "dblclick", "pointerdown", "pointerup", "mousedown", "mouseup",
@@ -71,6 +76,12 @@
     } catch {}
   }
 
+  function applyGradientSetting() {
+    document.documentElement?.toggleAttribute(HIDE_GRADIENT_ATTRIBUTE, settings.hideGradient);
+  }
+
+  applyGradientSetting();
+
   // Patch reads instead of writing Apple's keys, so nothing sticks once the extension is off.
   Storage.prototype.getItem = function (key) {
     const value = originalGetItem.call(this, key);
@@ -79,7 +90,8 @@
       try {
         stored = JSON.parse(value) || {};
       } catch {}
-      return JSON.stringify({ ...stored, ...CONFIG_OVERRIDES });
+      const overrides = settings.quality.mode === "auto" ? AUTO_CONFIG_OVERRIDES : CONFIG_OVERRIDES;
+      return JSON.stringify({ ...stored, ...overrides });
     }
     if (settings.blockAutoSubtitles && typeof key === "string" && AUTO_SUBTITLE_PREF.test(key)) {
       return "false";
@@ -102,6 +114,7 @@
   let playback = newPlayback();
   let lastPinnedId;
   const attachedSessions = new WeakSet();
+  const pinnedSessions = new WeakSet();
   const watchedVideos = new WeakSet();
 
   function newPlayback() {
@@ -162,12 +175,20 @@
       return;
     }
     const target = resolveQualityTarget();
-    try {
-      // An empty id hands control back to Apple's adaptive bitrate logic.
-      session.variantId = target ? target.mediaOptionId : "";
-    } catch (error) {
-      console.warn(`${LOG_PREFIX} could not set quality`, error);
-      return;
+    // Auto leaves alone a session the extension never pinned, so it stays Apple's own.
+    if (target || pinnedSessions.has(session)) {
+      try {
+        // An empty id hands control back to Apple's adaptive bitrate logic.
+        session.variantId = target ? target.mediaOptionId : "";
+      } catch (error) {
+        console.warn(`${LOG_PREFIX} could not set quality`, error);
+        return;
+      }
+      if (target) {
+        pinnedSessions.add(session);
+      } else {
+        pinnedSessions.delete(session);
+      }
     }
     const pinnedId = target?.mediaOptionId ?? "auto";
     if (pinnedId !== lastPinnedId) {
@@ -438,7 +459,7 @@
     const playingKey = playingLevel ? levelKey(playingLevel) : null;
     const mode = settings.quality.mode;
     const options = [
-      { key: "auto", label: "Auto", hint: "Adapts to your connection, but starts high.", value: { mode: "auto" }, selected: mode === "auto" },
+      { key: "auto", label: "Auto (Apple default)", hint: "Apple picks it for your connection. Starts lower and climbs.", value: { mode: "auto" }, selected: mode === "auto" },
       {
         key: "max",
         label: "Highest available",
@@ -484,6 +505,9 @@
     }
     if ("subtitles" in patch) {
       setSubtitles(settings.subtitles);
+    }
+    if ("hideGradient" in patch) {
+      applyGradientSetting();
     }
     if ("injectUI" in patch) {
       if (!settings.injectUI) {

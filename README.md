@@ -4,8 +4,8 @@
 
 Chrome extension for the Apple TV web player (tv.apple.com): live sports, movies and series.
 
-- Removes the dark gradient that covers the video when the mouse moves.
-- **Quality:** starts at the highest quality and keeps it pinned, or choose Auto or a specific resolution.
+- Removes the dark gradient that covers the video when the mouse moves. It can be turned off.
+- **Quality:** starts at the highest quality and keeps it pinned, or choose a specific resolution, or Auto to leave it to Apple's player.
 - **Subtitles:** blocks the ones Apple turns on by itself and remembers whether you want them on or off. Apple turns them on when you mute, when you skip back 10 seconds, or when the audio language differs from the interface.
 - **Playback info overlay:** quality, dropped frames, buffer, measured bandwidth, live delay, CDN and more.
 - **Settings button:** inside Apple's control bar, with the same settings in the extension's toolbar popup.
@@ -45,6 +45,7 @@ This builds two zips in `dist/`: one for manual installation and one with `manif
 | `popup.html`, `popup.js`, `popup.css` | Toolbar popup. |
 | `icons/` | Extension icons and their SVG sources; see [icons/ORIGIN.md](icons/ORIGIN.md). |
 | `tools/dump-player.js` | Console snippet that dumps the live player's HTML and CSS. |
+| `tools/render-store-images.js`, `docs/store/` | Chrome Web Store images and the script that renders them; see [docs/store/README.md](docs/store/README.md). |
 | `scripts/package.py` | Builds the zips. |
 | `.github/workflows/release.yml` | Publishes a GitHub release for each version tag. |
 | `LICENSE`, `THIRD_PARTY_NOTICES.md`, `PRIVACY.md` | License, third-party credits and privacy policy. |

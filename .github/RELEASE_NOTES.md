@@ -11,8 +11,8 @@ Download **player-tweaks-for-apple-tv-{{VERSION}}.zip** from **Assets**. That is
 
 ## Features
 
-- Removes the dark gradient that covers the video when the mouse moves.
-- **Quality:** starts at the highest quality and keeps it pinned, or choose Auto or a specific resolution.
+- Removes the dark gradient that covers the video when the mouse moves. It can be turned off.
+- **Quality:** starts at the highest quality and keeps it pinned, or choose a specific resolution, or Auto to leave it to Apple's player.
 - **Subtitles:** blocks the subtitles Apple turns on by itself and remembers whether you want them on or off.
 - **Playback info:** an overlay with quality, dropped frames, buffer, bandwidth and more.
 - **Settings button:** inside Apple's control bar, with the same settings in the toolbar popup.

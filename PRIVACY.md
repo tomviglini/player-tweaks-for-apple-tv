@@ -1,12 +1,12 @@
 # Privacy policy
 
-Last updated: 2026-10-11.
+Last updated: 2026-10-12.
 
 ## Purpose
 
 The extension changes how the tv.apple.com web player behaves in your browser:
 
-- it hides the dark gradient over the video;
+- it can hide the dark gradient over the video;
 - it controls stream quality;
 - it handles subtitles;
 - it can show playback information.
@@ -19,6 +19,7 @@ To work, the extension reads the following from the tv.apple.com page while a vi
 - **Tracks:** the available subtitle and audio tracks and the selected ones.
 - **Playback statistics:** frame rate, dropped frames, buffered time, measured bandwidth, startup time, quality switches, stalls, errors, live delay, the CDN in use, and the IP address of the video server from the player's own log.
 - **Subtitle language:** the last subtitle language you picked in Apple's player, and your browser's language, to choose a subtitle language.
+- **Mouse and keyboard:** mouse movement, clicks and the Escape key on the page, only to show the extension's button, close its menu and look for the dark gradient again. None of it is recorded.
 
 This information is used only on the spot, to apply your settings and to show it in the extension's menu, popup and on-screen overlay. It is not saved, except for the settings below.
 
@@ -28,6 +29,7 @@ The extension does not read your Apple Account, payment details, viewing history
 
 The extension stores only its own settings, in tv.apple.com's `localStorage` under the key `player-tweaks:settings`:
 
+- whether the dark gradient is hidden;
 - the quality choice;
 - the subtitle preferences;
 - the overlay preferences;

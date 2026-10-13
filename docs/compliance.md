@@ -12,7 +12,7 @@ Reviews are done by the owner with the help of an AI assistant. They are a caref
 
 ## Status
 
-As of 2026-10-11:
+As of 2026-10-12:
 
 | Area | Status | Summary |
 | --- | --- | --- |
@@ -78,9 +78,10 @@ The first rule is respected; see [DRM and access controls](#drm-and-access-contr
 
 The second rule is a real, accepted risk. The extension changes how Apple's web player behaves in the user's browser:
 
-- it sets hls.js config overrides;
+- it sets hls.js config overrides; in Auto, only the flag that lets the user lock a quality;
 - it patches storage reads;
-- it adds a button to Apple's control bar.
+- it adds a button to Apple's control bar;
+- it hides the player's dark gradient, unless the user turns that off.
 
 A reasonable reading is that this counts as using a modified version of Apple's software. No change short of dropping those features removes that risk.
 
@@ -161,15 +162,17 @@ It deliberately avoids:
 
 | Source | Checked | Version |
 | --- | --- | --- |
-| [Apple: Guidelines for Using Apple Trademarks and Copyrights](https://www.apple.com/legal/intellectual-property/guidelinesfor3rdparties.html) | 2026-10-11 | |
-| [Apple Media Services Terms (US)](https://www.apple.com/legal/internet-services/itunes/us/terms.html) | 2026-10-11 | updated 2026-09-14 |
-| [Apple Media Services Terms (Argentina)](https://www.apple.com/legal/internet-services/itunes/ar/terms.html) | 2026-10-11 | updated 2026-09-14 |
-| [Chrome Web Store program policies](https://developer.chrome.com/docs/webstore/program-policies/policies) | 2026-10-11 | |
-| [Chrome Web Store user data FAQ](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq) | 2026-10-11 | |
-| [Lucide license](https://github.com/lucide-icons/lucide/blob/main/LICENSE) | 2026-10-11 | |
+| [Apple: Guidelines for Using Apple Trademarks and Copyrights](https://www.apple.com/legal/intellectual-property/guidelinesfor3rdparties.html) | 2026-10-12 | no date shown; © 2026 |
+| [Apple Media Services Terms (US)](https://www.apple.com/legal/internet-services/itunes/us/terms.html) | 2026-10-12 | updated 2026-09-14 |
+| [Apple Media Services Terms (Argentina)](https://www.apple.com/legal/internet-services/itunes/ar/terms.html) | 2026-10-12 | updated 2026-09-14 |
+| [Chrome Web Store program policies](https://developer.chrome.com/docs/webstore/program-policies/policies) | 2026-10-12 | page updated 2025-05-22 |
+| [Chrome Web Store user data FAQ](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq) | 2026-10-12 | page footer 2016-04-23 |
+| [Lucide license](https://github.com/lucide-icons/lucide/blob/main/LICENSE) | 2026-10-12 | ISC, © 2026 Lucide Icons and Contributors |
 | Coverage of the Apple TV+ to Apple TV rename, for example [Advanced Television](https://www.advanced-television.com/2025/10/14/apple-tv-drops-the/) | 2026-10-11 | October 2025 |
 
 ## Review log
+
+- **2026-10-12, 0.2.0 (tag `v0.2.0`):** no findings; sources unchanged. Added the gradient switch and Auto to the list under [Apple's terms](#apples-terms). Reviewed by the owner with Claude (Opus 5.5) in Claude Code.
 
 ### 2026-10-11: initial review
 

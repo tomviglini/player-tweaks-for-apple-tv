@@ -1,6 +1,6 @@
 # Apple TV web player internals
 
-This file covers what the extension relies on inside the tv.apple.com web player. It was read from Apple's shipped bundles and from dumps of the live player on 2026-10-10 and 2026-10-11.
+This file covers what the extension relies on inside the tv.apple.com web player. It was read from Apple's shipped bundles and from dumps of the live player on 2026-10-10 and 2026-10-11, and the `allowManualLevelSelectInProd` details from hls.js 3.4.16 on 2026-10-12.
 
 None of it is a public API, and Apple can change any of it without notice:
 
@@ -41,7 +41,7 @@ The merge is shallow, so a nested setting such as `startupRestrictions` is repla
 
 ## hls.js settings that hold quality back
 
-| Setting | Apple's default | Extension |
+| Setting | Apple's default | Extension (Highest and Fixed) |
 | --- | --- | --- |
 | `enableAdaptiveStartup` | `true` | `false` |
 | `startupRestrictions` | `minValidBitrate: 8e5`, `maxValidBitrate: 8e6`, `maxPreferredBitrate: 5e6`, `minValidHeight: 300`, `maxValidHeight: 1200` | All five limits wide open |
@@ -50,6 +50,8 @@ The merge is shallow, so a nested setting such as `startupRestrictions` is repla
 | `abrBandWidthUpFactor` | `0.9` | `1` |
 | `abrLowSampleBandwidthFactor` | `0.7` | `1` |
 | `allowManualLevelSelectInProd` | `false` | `true` |
+
+In Auto, the extension adds only `allowManualLevelSelectInProd`, so Apple's startup and bandwidth settings stay as they are.
 
 The startup restrictions make the player prefer variants under 5 Mbps. Together with the conservative bandwidth factors, playback starts low and takes a while to reach the top variant, which was the problem that started this extension.
 
@@ -72,6 +74,7 @@ Members the extension reads or sets:
   - `levelCodec` or `videoCodec`, and `videoRange`;
   - `pathwayID`, `hdcpLevel` and `iframes`.
 - **`variantId`:** setting a `mediaOptionId` pins that variant, and `""` hands control back to adaptive bitrate. Production builds ignore it unless `allowManualLevelSelectInProd` is on.
+  - Checked in hls.js 3.4.16 on 2026-10-12: the setter is the only code that reads `allowManualLevelSelectInProd`, whose default is `false`. With the flag on, `""` or `"Nah"` turns manual mode off for the playing item, and any other id turns it on and switches. With the flag on and no `variantId` write, the player behaves as it does without the extension.
 - **Subtitles:**
   - `subtitleMediaOptions` lists the tracks, with `MediaSelectionOptionsPersistentID`, `MediaSelectionOptionsName` and `MediaSelectionOptionsExtendedLanguageTag`;
   - `subtitleSelectedPersistentID` reads the current track, and setting it to `-1` turns subtitles off.
@@ -89,6 +92,8 @@ Members the extension reads or sets:
 - **Quality options:** the extension takes `levels` without I-frame variants, keeps the CDN pathway that is playing, and lists one option per height, frame rate and bitrate, best first.
   - "Highest available" pins the first option.
   - "Fixed resolution" pins the closest match, by height, then frame rate, then bitrate.
+  - Auto writes nothing to a session the extension never pinned. It sets `variantId` to `""` only to undo an earlier pin in the same session. Apple reads the overrides when it creates the player, so switching to Auto mid-video unpins at once, but the extension's startup and bandwidth settings stay until Apple creates a new player, for example after a page reload. Whether autoplay of the next episode creates a new player was not checked.
+    - Checked in hls.js 3.4.16 on 2026-10-12: the adaptive bitrate code reads `abrBandWidthFactor`, `abrBandWidthUpFactor` and `abrLowSampleBandwidthFactor` from its config object at every decision, so changing them in a running player might take effect. It was not checked whether that object is `hlsSession.config`. The extension does not write into a running player's config, so it does not depend on that internal code, and it never imposes values that might no longer be Apple's.
 - **When it applies:** quality is applied on `MANIFEST_PARSED` and again on the first `LEVEL_SWITCHED`. The subtitle setting is applied on that same `LEVEL_SWITCHED`.
 - **HUD:** it reads the video element, the playing level, `bufferedDuration`, the live fields and the last `accessLog` entry.
 
@@ -168,6 +173,8 @@ The controls are 24×24 boxes with 18px icons. They use `var(--player-controls-c
   - A floating gear is the fallback when the bar cannot be found.
 - **Menu and HUD:** both live in a manual popover, `#player-tweaks-ui`, appended inside the player's `<dialog>` so the modal dialog does not make them inert. The popover is shown again whenever the dialog or fullscreen state changes, so it stays on top.
 - **Overlay:** `content.css` and `content.js` hide `.scrim__gradient` and similar dark full-width gradients inside the player.
+  - They act only while `<html>` has `data-player-tweaks-hide-gradient`, which `player-tools.js` sets from the gradient setting.
+  - `content.js` only marks the gradients it finds, with `data-player-tweaks-gradient`, and `content.css` hides them. Turning the setting off therefore brings Apple's gradient back at once, with nothing to undo.
 
 ## Contextual menu (desktop, min-width 484px)
 

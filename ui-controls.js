@@ -5,6 +5,7 @@
 
   const DEFAULT_SETTINGS = {
     injectUI: true,
+    hideGradient: true,
     quality: { mode: "max" },
     subtitles: false,
     blockAutoSubtitles: true,
@@ -257,6 +258,11 @@
     let qualitySignature = "";
     let selectedKey = null;
 
+    const hideGradient = switchRow(
+      "Hide dark gradient",
+      "No shading over the video when the controls show. Off: Apple's gradient.",
+      (on) => onChange({ hideGradient: on })
+    );
     const injectUI = switchRow(
       "Gear in the player",
       "Settings button in Apple's control bar. Off: only in this popup.",
@@ -306,7 +312,7 @@
 
     const sections = [
       now,
-      context === "popup" ? section("Interface", injectUI.row) : null,
+      section("Interface", hideGradient.row, context === "popup" ? injectUI.row : null),
       section("Quality", baseOptions, fixedGroup),
       section("Subtitles", subtitles.row, blockAuto.row),
       section("Debug", hudEnabled.row, hudCompact.row),
@@ -352,6 +358,7 @@
         now.textContent = state.hasPlayer ? `Now: ${state.current || "—"}` : "No active playback";
         renderQuality(state.qualityOptions || []);
 
+        hideGradient.input.checked = settings.hideGradient;
         injectUI.input.checked = settings.injectUI;
         subtitles.input.checked = settings.subtitles;
         subtitles.status.textContent = !state.hasPlayer

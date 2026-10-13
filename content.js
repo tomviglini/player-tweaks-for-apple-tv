@@ -1,4 +1,8 @@
-const MARKER = "data-player-tweaks";
+// player-tools.js sets ENABLED on <html> while the gradient setting is on. This script
+// only marks gradients; content.css hides them while ENABLED is there, so turning the
+// setting off brings Apple's gradient back without undoing anything.
+const ENABLED = "data-player-tweaks-hide-gradient";
+const MARKER = "data-player-tweaks-gradient";
 
 function isLikelyOverlayGradient(node) {
   if (!(node instanceof Element)) {
@@ -24,31 +28,25 @@ function isLikelyOverlayGradient(node) {
   return areaLooksLikeOverlay && isNearViewportEdge && hasDarkGradient && hasScrimHint;
 }
 
-function neutralize(node) {
-  if (node.hasAttribute(MARKER)) {
-    return;
+function mark(node) {
+  if (!node.hasAttribute(MARKER)) {
+    node.setAttribute(MARKER, "");
   }
-
-  node.setAttribute(MARKER, "true");
-  node.style.setProperty("opacity", "0", "important");
-  node.style.setProperty("background", "transparent", "important");
-  node.style.setProperty("background-image", "none", "important");
-  node.style.setProperty("pointer-events", "none", "important");
 }
 
 function scanNode(root) {
-  if (!(root instanceof Element || root instanceof Document)) {
+  if (!document.documentElement.hasAttribute(ENABLED) || !(root instanceof Element || root instanceof Document)) {
     return;
   }
 
   if (root instanceof Element && isLikelyOverlayGradient(root)) {
-    neutralize(root);
+    mark(root);
   }
 
   const nodes = root.querySelectorAll ? root.querySelectorAll("*") : [];
   for (const node of nodes) {
     if (isLikelyOverlayGradient(node)) {
-      neutralize(node);
+      mark(node);
     }
   }
 }
@@ -69,7 +67,7 @@ observer.observe(document.documentElement, {
   childList: true,
   subtree: true,
   attributes: true,
-  attributeFilter: ["class", "style"]
+  attributeFilter: ["class", "style", ENABLED]
 });
 
 scanNode(document);
