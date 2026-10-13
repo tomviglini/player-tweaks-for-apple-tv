@@ -1,0 +1,16 @@
+{
+  "outcome": "success",
+  "tag": "v0.1.0",
+  "run": "https://github.com/tomviglini/player-tweaks-for-apple-tv/actions/runs/38332615372",
+  "url": "https://github.com/tomviglini/player-tweaks-for-apple-tv/releases/tag/v0.1.0",
+  "private_repository": false,
+  "assets": [
+    {
+      "name": "player-tweaks-for-apple-tv-0.1.0.zip",
+      "url": "https://github.com/tomviglini/player-tweaks-for-apple-tv/releases/download/v0.1.0/player-tweaks-for-apple-tv-0.1.0.zip",
+      "bytes": 33960,
+      "state": "uploaded",
+      "sha256": "sha256:d9e9a9bdb7cc9c0af288d9bdfb1d4ff8fecf0bc6af3ec5b0555085a65f8e574c"
+    }
+  ]
+}
