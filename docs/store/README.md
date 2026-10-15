@@ -1,6 +1,6 @@
 # Chrome Web Store listing
 
-Texts and images for the Chrome Web Store listing, ready to paste into the developer dashboard. They describe version 0.2.1. Review them whenever the extension's behavior changes. The publishing steps are in [publishing.md](../publishing.md#chrome-web-store).
+Texts and images for the Chrome Web Store listing, ready to paste into the developer dashboard. They describe version 0.2.2. Review them whenever the extension's behavior changes. The publishing steps are in [publishing.md](../publishing.md#chrome-web-store).
 
 ## Package
 

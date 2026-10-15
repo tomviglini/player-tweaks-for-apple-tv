@@ -81,6 +81,7 @@ Members the extension reads or sets:
 - **Audio:** `audioMediaOptions` and `audioSelectedPersistentID`, with the same fields as subtitles.
 - **`accessLog`:** each entry carries `c-observed-bitrate`, `c-stalls`, `c-frames-dropped`, `c-startup-time`, `s-ip`, `sc-indicated-bitrate` and `c-overdue`. There is also an `errorLog`.
 - **Playback state:** `bufferedDuration`, `isLive`, `isPlayingAtLive`, `playingDate` and `config`.
+- **`iframeMode`:** checked in hls.js 3.4.16 on 2026-10-14. It is `true` while the playback rate is a fast forward or rewind rate. The player then plays I-frame variants, which have `iframes: true` and are not in the extension's quality list.
 - **`activeRootPlaylistQuery`:**
   - `.mediaOptionListQueries[0].mediaOptionList` is the unfiltered variant list, and `.filteredMediaOptionList` the playable one;
   - `.maxHdcpLevel`;
@@ -111,6 +112,7 @@ Checked in hls.js 3.4.16 on 2026-10-14:
 **Extension use:** every 5 s, in Highest and Fixed, the extension compares its target with `activeRootPlaylistQuery.enabledVariantMediaOption`. When they differ and the last pin was at least 15 s ago, it pins the target again.
 
 - While a variant is penalized, it is not in `levels`, so the target is the best remaining variant and nothing is pinned. The penalty box itself paces the retries.
+- Nothing is pinned while `iframeMode` is on or the enabled variant is an I-frame variant, so fast forward and rewind are left to the player.
 - Before this, a single failure left Highest on the fallback until the page was reloaded. Seen live on 2026-10-14: 1080p60 at 8.1 Mbps dropped to 6.3 Mbps and did not come back.
 
 ## Auto-subtitles

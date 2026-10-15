@@ -172,6 +172,7 @@ It deliberately avoids:
 
 ## Review log
 
+- **2026-10-14, 0.2.2 (tag `v0.2.2`):** no findings; sources as checked earlier the same day for 0.2.1. Reviewed by the owner with Claude (Opus 5.5) in Claude Code.
 - **2026-10-14, 0.2.1 (tag `v0.2.1`):** no findings; sources unchanged. Reviewed by the owner with Claude (Opus 5.5) in Claude Code.
 - **2026-10-12, 0.2.0 (tag `v0.2.0`):** no findings; sources unchanged. Added the gradient switch and Auto to the list under [Apple's terms](#apples-terms). Reviewed by the owner with Claude (Opus 5.5) in Claude Code.
 

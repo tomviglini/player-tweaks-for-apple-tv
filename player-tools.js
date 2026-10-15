@@ -212,7 +212,11 @@
   // target again once it differs from what the player is loading.
   function keepQuality() {
     const current = session && !playback.applyPending ? enabledVariant() : null;
-    const target = current ? resolveQualityTarget() : null;
+    // Fast forward and rewind play I-frame variants, which are not in the quality list.
+    if (!current || current.iframes || safe(() => session.iframeMode)) {
+      return;
+    }
+    const target = resolveQualityTarget();
     if (!target || target.mediaOptionId === current.mediaOptionId || Date.now() - playback.lastPinAt < REPIN_MIN_GAP_MS) {
       return;
     }
