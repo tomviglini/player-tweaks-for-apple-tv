@@ -12,7 +12,7 @@ Reviews are done by the owner with the help of an AI assistant. They are a caref
 
 ## Status
 
-As of 2026-10-12:
+As of 2026-10-14:
 
 | Area | Status | Summary |
 | --- | --- | --- |
@@ -162,16 +162,17 @@ It deliberately avoids:
 
 | Source | Checked | Version |
 | --- | --- | --- |
-| [Apple: Guidelines for Using Apple Trademarks and Copyrights](https://www.apple.com/legal/intellectual-property/guidelinesfor3rdparties.html) | 2026-10-12 | no date shown; © 2026 |
-| [Apple Media Services Terms (US)](https://www.apple.com/legal/internet-services/itunes/us/terms.html) | 2026-10-12 | updated 2026-09-14 |
-| [Apple Media Services Terms (Argentina)](https://www.apple.com/legal/internet-services/itunes/ar/terms.html) | 2026-10-12 | updated 2026-09-14 |
-| [Chrome Web Store program policies](https://developer.chrome.com/docs/webstore/program-policies/policies) | 2026-10-12 | page updated 2025-05-22 |
-| [Chrome Web Store user data FAQ](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq) | 2026-10-12 | page footer 2016-04-23 |
-| [Lucide license](https://github.com/lucide-icons/lucide/blob/main/LICENSE) | 2026-10-12 | ISC, © 2026 Lucide Icons and Contributors |
+| [Apple: Guidelines for Using Apple Trademarks and Copyrights](https://www.apple.com/legal/intellectual-property/guidelinesfor3rdparties.html) | 2026-10-14 | no date shown; © 2026 |
+| [Apple Media Services Terms (US)](https://www.apple.com/legal/internet-services/itunes/us/terms.html) | 2026-10-14 | updated 2026-09-14 |
+| [Apple Media Services Terms (Argentina)](https://www.apple.com/legal/internet-services/itunes/ar/terms.html) | 2026-10-14 | updated 2026-09-14 |
+| [Chrome Web Store program policies](https://developer.chrome.com/docs/webstore/program-policies/policies) | 2026-10-14 | page updated 2025-05-22 |
+| [Chrome Web Store user data FAQ](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq) | 2026-10-14 | page footer 2016-04-23 |
+| [Lucide license](https://github.com/lucide-icons/lucide/blob/main/LICENSE) | 2026-10-14 | ISC, © 2026 Lucide Icons and Contributors |
 | Coverage of the Apple TV+ to Apple TV rename, for example [Advanced Television](https://www.advanced-television.com/2025/10/14/apple-tv-drops-the/) | 2026-10-11 | October 2025 |
 
 ## Review log
 
+- **2026-10-14, 0.2.1 (tag `v0.2.1`):** no findings; sources unchanged. Reviewed by the owner with Claude (Opus 5.5) in Claude Code.
 - **2026-10-12, 0.2.0 (tag `v0.2.0`):** no findings; sources unchanged. Added the gradient switch and Auto to the list under [Apple's terms](#apples-terms). Reviewed by the owner with Claude (Opus 5.5) in Claude Code.
 
 ### 2026-10-11: initial review

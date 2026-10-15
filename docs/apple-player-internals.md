@@ -84,7 +84,7 @@ Members the extension reads or sets:
 - **`activeRootPlaylistQuery`:**
   - `.mediaOptionListQueries[0].mediaOptionList` is the unfiltered variant list, and `.filteredMediaOptionList` the playable one;
   - `.maxHdcpLevel`;
-  - `.enabledVariantMediaOption` is the variant playing now.
+  - `.enabledVariantMediaOption` is the variant the player has enabled. It changes as soon as the player picks another variant, before `LEVEL_SWITCHED` fires, and it has the same fields as an entry of `levels`, including `pathwayID`.
 - **Events:** `window.Hls.Events` has `MANIFEST_PARSED`, `LEVEL_SWITCHED` and `SUBTITLE_TRACK_SWITCH`. The variant and subtitle setters do nothing until the first `LEVEL_SWITCHED`, because they need an active playlist.
 
 **Extension use:**
@@ -94,8 +94,24 @@ Members the extension reads or sets:
   - "Fixed resolution" pins the closest match, by height, then frame rate, then bitrate.
   - Auto writes nothing to a session the extension never pinned. It sets `variantId` to `""` only to undo an earlier pin in the same session. Apple reads the overrides when it creates the player, so switching to Auto mid-video unpins at once, but the extension's startup and bandwidth settings stay until Apple creates a new player, for example after a page reload. Whether autoplay of the next episode creates a new player was not checked.
     - Checked in hls.js 3.4.16 on 2026-10-12: the adaptive bitrate code reads `abrBandWidthFactor`, `abrBandWidthUpFactor` and `abrLowSampleBandwidthFactor` from its config object at every decision, so changing them in a running player might take effect. It was not checked whether that object is `hlsSession.config`. The extension does not write into a running player's config, so it does not depend on that internal code, and it never imposes values that might no longer be Apple's.
-- **When it applies:** quality is applied on `MANIFEST_PARSED` and again on the first `LEVEL_SWITCHED`. The subtitle setting is applied on that same `LEVEL_SWITCHED`.
+- **When it applies:** quality is applied on `MANIFEST_PARSED` and again on the first `LEVEL_SWITCHED`, and pinned again when the player moves away from it; see [Error handling](#error-handling). The subtitle setting is applied on that same first `LEVEL_SWITCHED`.
+- **CDN pathway:** the quality list and the target use the pathway of `enabledVariantMediaOption`, so they follow the player's own pathway switches.
 - **HUD:** it reads the video element, the playing level, `bufferedDuration`, the live fields and the last `accessLog` entry.
+
+## Error handling
+
+Checked in hls.js 3.4.16 on 2026-10-14:
+
+- **Failed variant:** when a playlist or segment load fails (HTTP 404 or 5xx, a timeout, a playlist update error), or a segment cannot be demuxed or appended, the player puts the variant in a penalty box for 120 s. HTTP 410 removes it until the page reloads.
+- **Failed pathway:** errors tied to a CDN pathway put the pathway in a separate penalty box for 300 s, and the player switches pathway.
+- **`levels`:** penalized and removed variants drop out of the filtered list until their box expires.
+- **Fallback:** if the failed variant is the enabled one, the player enables a fallback variant. Manual mode stays on, because enabling a variant does not change it. With a pinned quality, the player therefore stays on the fallback after the box expires.
+- **Limit:** consecutive load timeouts that reach `maxNumAddLevelToPenaltyBox` (4) end playback with a fatal error. A successful load resets the count.
+
+**Extension use:** every 5 s, in Highest and Fixed, the extension compares its target with `activeRootPlaylistQuery.enabledVariantMediaOption`. When they differ and the last pin was at least 15 s ago, it pins the target again.
+
+- While a variant is penalized, it is not in `levels`, so the target is the best remaining variant and nothing is pinned. The penalty box itself paces the retries.
+- Before this, a single failure left Highest on the fallback until the page was reloaded. Seen live on 2026-10-14: 1080p60 at 8.1 Mbps dropped to 6.3 Mbps and did not come back.
 
 ## Auto-subtitles
 

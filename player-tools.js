@@ -12,6 +12,9 @@
   const HIDE_GRADIENT_ATTRIBUTE = "data-player-tweaks-hide-gradient";
   // How long after a stream starts the saved subtitle preference overrides the page's own pick.
   const SUBTITLE_GUARD_MS = 15000;
+  // How often a pinned quality is checked, and the least time between two pins.
+  const REPIN_CHECK_MS = 5000;
+  const REPIN_MIN_GAP_MS = 15000;
   const CONFIG_OVERRIDES = {
     // Lets hlsSession.variantId pin a variant; production builds ignore it otherwise.
     allowManualLevelSelectInProd: true,
@@ -118,7 +121,7 @@
   const watchedVideos = new WeakSet();
 
   function newPlayback() {
-    return { switches: 0, lastSwitchAt: 0, stalls: 0, applyPending: false, subtitleGuardUntil: 0, frames: null, fps: null };
+    return { switches: 0, lastSwitchAt: 0, stalls: 0, applyPending: false, lastPinAt: 0, subtitleGuardUntil: 0, frames: null, fps: null };
   }
 
   function levelKey(level) {
@@ -133,10 +136,16 @@
     );
   }
 
+  // The variant Apple's player is loading now. It changes before LEVEL_SWITCHED fires.
+  function enabledVariant() {
+    return safe(() => session.activeRootPlaylistQuery.enabledVariantMediaOption) || playingLevel;
+  }
+
   // Playable video variants on the current CDN pathway, best first, one per quality.
   function videoLevels() {
     const all = safe(() => session.levels, []).filter((level) => !level.iframes);
-    const samePathway = all.filter((level) => level.pathwayID === playingLevel?.pathwayID);
+    const pathway = enabledVariant()?.pathwayID;
+    const samePathway = all.filter((level) => level.pathwayID === pathway);
     const unique = new Map();
     for (const level of (samePathway.length ? samePathway : all).sort(compareLevels)) {
       if (!unique.has(levelKey(level))) {
@@ -186,6 +195,7 @@
       }
       if (target) {
         pinnedSessions.add(session);
+        playback.lastPinAt = Date.now();
       } else {
         pinnedSessions.delete(session);
       }
@@ -195,6 +205,19 @@
       lastPinnedId = pinnedId;
       console.info(`${LOG_PREFIX} quality: ${target ? `pinned ${describe(target)}` : "auto"}`);
     }
+  }
+
+  // When a variant fails, Apple's player moves to another one and keeps the failed one out of
+  // `levels` for two minutes. Manual mode stays on, so it never climbs back by itself: pin the
+  // target again once it differs from what the player is loading.
+  function keepQuality() {
+    const current = session && !playback.applyPending ? enabledVariant() : null;
+    const target = current ? resolveQualityTarget() : null;
+    if (!target || target.mediaOptionId === current.mediaOptionId || Date.now() - playback.lastPinAt < REPIN_MIN_GAP_MS) {
+      return;
+    }
+    console.info(`${LOG_PREFIX} the player moved to ${describe(current)}; pinning ${describe(target)} again`);
+    applyQuality();
   }
 
   function subtitleOptions() {
@@ -786,6 +809,7 @@
   }
 
   setInterval(syncUI, 1000);
+  setInterval(keepQuality, REPIN_CHECK_MS);
   window.addEventListener("resize", syncUI);
   document.addEventListener("fullscreenchange", () => {
     layerKey = "";
