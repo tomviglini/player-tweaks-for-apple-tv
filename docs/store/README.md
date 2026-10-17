@@ -130,7 +130,7 @@ No test account: playback on tv.apple.com needs the reviewer's own Apple Account
 
 - **Screenshot:**
   - the extension's own settings menu, rendered by `ui-controls.js` with the default settings;
-  - sample stream values from the MLS stream in [apple-player-internals.md](../apple-player-internals.md#observed-stream);
+  - sample stream values from the MLS stream in [apple-player-internals.md](../apple-player-internals.md#mls-live);
   - a neutral background, the icon, the name and four feature lines.
 
   It does not show Apple's player.

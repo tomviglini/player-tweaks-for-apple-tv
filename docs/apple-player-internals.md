@@ -1,6 +1,6 @@
 # Apple TV web player internals
 
-This file covers what the extension relies on inside the tv.apple.com web player. It was read from Apple's shipped bundles and from dumps of the live player on 2026-10-10 and 2026-10-11, and the `allowManualLevelSelectInProd` details from hls.js 3.4.16 on 2026-10-12.
+This file covers what the extension relies on inside the tv.apple.com web player. It was read from Apple's shipped bundles and from dumps of the live player on 2026-10-10 and 2026-10-11, the `allowManualLevelSelectInProd` details from hls.js 3.4.16 on 2026-10-12, and the DRM filtering from MusicKit and hls.js 3.4.16 on 2026-10-17.
 
 None of it is a public API, and Apple can change any of it without notice:
 
@@ -65,6 +65,23 @@ Related settings the extension leaves alone:
 
 An earlier version removed lower variants from the HLS master playlist by wrapping `fetch` and XHR. That was dropped: Apple's hls.js filters variants by `HDCP-LEVEL` and `PATHWAY-ID`, so stripping them blindly could leave only variants the player then rejects. Pinning through `hlsSession.variantId` only chooses among the variants the player already accepts.
 
+## DRM and security level
+
+Checked in MusicKit (`mediakit~*.js`) and hls.js 3.4.16 on 2026-10-17:
+
+- **Key system:** MusicKit probes each key system with `requestMediaKeySystemAccess` and picks Widevine whenever the browser supports it, then PlayReady, then FairPlay. Browsers that ship Widevine, such as Chrome and Edge, therefore get Widevine; only Chrome on Windows was checked live. hls.js requests PlayReady as `com.microsoft.playready.recommendation`.
+- **Security level:** with Widevine, MusicKit passes `maxSecurityLevel: "WIDEVINE_SOFTWARE"` to hls.js in the player's platform info. It is set in code, not through the hls.js config.
+- **Load-time filters:** before the variant list exists, hls.js drops variants:
+  - with a disabled audio or video codec;
+  - above the maximum HDCP level, when the platform reports one;
+  - whose `ALLOWED-CPC` entry for the key system names a level above the maximum security level;
+  - that fail the key system access check or MediaCapabilities.
+
+  Dropped variants appear in neither `mediaOptionList` nor `levels`.
+- **HDCP:** MusicKit reports no maximum HDCP level, and `maxHdcpLevel` was undefined in the live player on 2026-10-17. When a key's status turns `output-restricted`, hls.js removes the variant permanently and lowers the maximum HDCP level by one step.
+
+**Extension use:** none. The extension lists only the variants that pass these filters and never changes the security or HDCP level, since that would work around Apple's DRM. In Chrome, the quality ceiling is therefore the best variant Apple allows for `WIDEVINE_SOFTWARE`; see [Observed streams](#observed-streams).
+
 ## `hlsSession`
 
 Members the extension reads or sets:
@@ -83,7 +100,7 @@ Members the extension reads or sets:
 - **Playback state:** `bufferedDuration`, `isLive`, `isPlayingAtLive`, `playingDate` and `config`.
 - **`iframeMode`:** checked in hls.js 3.4.16 on 2026-10-14. It is `true` while the playback rate is a fast forward or rewind rate. The player then plays I-frame variants, which have `iframes: true` and are not in the extension's quality list.
 - **`activeRootPlaylistQuery`:**
-  - `.mediaOptionListQueries[0].mediaOptionList` is the unfiltered variant list, and `.filteredMediaOptionList` the playable one;
+  - `.mediaOptionListQueries[0].mediaOptionList` is the variant list after the [load-time filters](#drm-and-security-level), not the whole master playlist, and `.filteredMediaOptionList` the playable one;
   - `.maxHdcpLevel`;
   - `.enabledVariantMediaOption` is the variant the player has enabled. It changes as soon as the player picks another variant, before `LEVEL_SWITCHED` fires, and it has the same fields as an entry of `levels`, including `pathwayID`.
 - **Events:** `window.Hls.Events` has `MANIFEST_PARSED`, `LEVEL_SWITCHED` and `SUBTITLE_TRACK_SWITCH`. The variant and subtitle setters do nothing until the first `LEVEL_SWITCHED`, because they need an active playlist.
@@ -212,7 +229,9 @@ Apple's menu metrics, as seen in the live dump:
 
 **Extension use:** `ui-controls.js` follows these values a notch smaller: 28px rows, 12px text, and 9.5px descriptions.
 
-## Observed stream
+## Observed streams
+
+### MLS live
 
 MLS live match in Chrome on Windows, 2026-10-10:
 
@@ -228,6 +247,38 @@ MLS live match in Chrome on Windows, 2026-10-10:
 
 All variants were H.264 (`avc1.640032` or `avc1.640029`), SDR and `HDCP-LEVEL=NONE`. Each quality was repeated on three CDN pathways: `ap-p`, `ap-b` and `ak-p`. See [troubleshooting.md](troubleshooting.md) for what this means for quality.
 
+### Apple TV+ series
+
+Apple TV+ series episode in Chrome on Windows, 2026-10-17:
+
+| Resolution | Bitrate |
+| --- | --- |
+| 864×432, 24 fps | 1.7 Mbps |
+| 812×406, 24 fps | 1.3 Mbps |
+| 712×356, 24 fps | 0.9 Mbps |
+| 644×322, 24 fps | 0.5 Mbps |
+| 576×288, 24 fps | 0.4 Mbps |
+| 508×254, 24 fps | 0.3 Mbps |
+
+- All six variants were `HDCP-LEVEL=NONE`, and each one's `ALLOWED-CPC` allowed `WIDEVINE_SOFTWARE`, PlayReady `SL2000`, and FairPlay `Baseline` and `AppleBaseline`.
+- The playable list and `mediaOptionList` were the same, so these six are what passed the [load-time filters](#drm-and-security-level).
+- Not checked: whether the master playlist also lists higher variants that need a higher security level, and the codecs.
+
+### MLS on demand
+
+MLS on-demand video, not live, in Chrome on Windows, 2026-10-17:
+
+| Resolution | Bitrate |
+| --- | --- |
+| 853×480, 30 fps | 2.0 Mbps |
+| 768×432, 30 fps | 1.5 Mbps |
+| 640×360, 30 fps | 0.9 Mbps |
+| 480×270, 30 fps | 0.4 Mbps |
+
+The `HDCP-LEVEL` and `ALLOWED-CPC` values, the match between the playable list and `mediaOptionList`, and what was not checked are the same as for the Apple TV+ series.
+
+See [troubleshooting.md](troubleshooting.md#apples-drm-caps-on-demand-video-at-480p) for both.
+
 ## Re-verifying
 
 - **Player DOM and CSS:** paste [`tools/dump-player.js`](../tools/dump-player.js) into the DevTools console during playback. It opens and closes the subtitles menu, then saves the player's DOM, shadow roots, component styles and the relevant page CSS:
@@ -238,17 +289,20 @@ All variants were H.264 (`avc1.640032` or `avc1.640029`), SDR and `HDCP-LEVEL=NO
 - **Bundle code:** in DevTools → Sources, search all files for strings such as:
   - `mk-hlsjs-config-overrides` and `allowManualLevelSelectInProd`;
   - `startupRestrictions`;
+  - `maxSecurityLevel` and `WIDEVINE_SOFTWARE`;
   - `tv+pref:som-` and `auto-subs`.
 - **Quality ladder:** paste this during playback. It copies a JSON report to the clipboard with:
   - the hls.js version, whether a session exists and the stored overrides;
   - the playing variant and the decoded size;
   - dropped frames;
-  - the playable and full variant lists.
+  - the playable list, and the list after the load-time filters as `all`;
+  - each variant's HDCP level and the Widevine levels its `ALLOWED-CPC` allows.
 
 ```js
 (() => {
   const s = window.hlsSession, q = s?.activeRootPlaylistQuery, v = q?.mediaOptionListQueries?.[0];
-  const fmt = (l) => l && `${l.width}x${l.height} ${Math.round(l.frameRate || 0)}fps ${((l.bitrate || 0) / 1e6).toFixed(1)}Mbps ${l.videoCodec || l.levelCodec || ""} ${l.videoRange || ""}${l.hdcpLevel ? " hdcp=" + l.hdcpLevel : ""}${l.pathwayID && l.pathwayID !== "." ? " path=" + l.pathwayID : ""}`;
+  const widevine = (l) => l.allowedCPCMap?.["urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"];
+  const fmt = (l) => l && `${l.width}x${l.height} ${Math.round(l.frameRate || 0)}fps ${((l.bitrate || 0) / 1e6).toFixed(1)}Mbps ${l.videoCodec || l.levelCodec || ""} ${l.videoRange || ""}${l.hdcpLevel ? " hdcp=" + l.hdcpLevel : ""}${widevine(l) ? " widevine=" + widevine(l).join("/") : ""}${l.pathwayID && l.pathwayID !== "." ? " path=" + l.pathwayID : ""}`;
   const list = (ls) => (ls || []).filter((l) => !l.iframes).sort((a, b) => b.bitrate - a.bitrate).map(fmt);
   const video = document.querySelector("video");
   const report = {

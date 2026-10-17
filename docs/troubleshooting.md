@@ -10,6 +10,33 @@ Observed on 2026-10-10 in Chrome on Windows, MLS live match:
 
 If playback already shows 1080p60 at 8.1 Mbps, there is nothing higher to force. Low quality at startup or after a network dip is what the extension's startup overrides and quality pinning address.
 
+On-demand video is usually capped lower by Apple's DRM; see [the next section](#apples-drm-caps-on-demand-video-at-480p).
+
+## Apple's DRM caps on-demand video at 480p
+
+Apple protects its video with DRM. In Chrome, Apple's player uses Widevine at the software security level, and drops every variant Apple does not allow at that level before the extension sees the list. See [DRM and security level](apple-player-internals.md#drm-and-security-level).
+
+In practice, MLS live matches are the only content that plays at a usable quality in Chrome for now. On-demand video at 480p or lower is too blurry to watch.
+
+Seen in Chrome on Windows up to 2026-10-17:
+
+| Content | Highest quality |
+| --- | --- |
+| MLS live matches | 1080p60 at 8.1 Mbps, every time so far |
+| MLS matches after they end | 480p |
+| MLS highlights | 480p |
+| Apple TV+ series episode | 432p (864×432) at 1.7 Mbps, 24 fps |
+
+- Most on-demand content checked, MLS or not, stopped at 480p or lower. Not every title was checked, so it is not known whether all on-demand content is capped.
+- Some MLS matches stayed at 1080p for a short time after they ended, and were at 480p within hours. The exact time was not measured.
+- In the capped videos, "Highest available" pins the best remaining variant, and the quality menu lists nothing higher.
+- HDCP is not the cause: every variant the player kept is `HDCP-LEVEL=NONE`.
+- For the MLS live match, whether the variants were encrypted, or allowed `WIDEVINE_SOFTWARE` at every quality, was not checked.
+
+MusicKit picks Widevine in every browser that supports it, so the same cap should apply to Chrome, Edge and Firefox on Windows and to Chrome on Mac. Only Chrome on Windows was tested.
+
+The extension does not raise this ceiling, because that would mean working around Apple's DRM. In browsers without Widevine, such as Safari, MusicKit uses FairPlay and sets no software cap; this was not tested.
+
 ## Dropped frames at 60 fps
 
 **Symptom:** the video stutters and the dropped-frame count keeps rising during 1080p60 playback.

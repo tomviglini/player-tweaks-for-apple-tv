@@ -6,6 +6,7 @@ Chrome extension for the Apple TV web player (tv.apple.com): live sports, movies
 
 - Removes the dark gradient that covers the video when the mouse moves. It can be turned off.
 - **Quality:** starts at the highest quality and keeps it pinned, or choose a specific resolution, or Auto to leave it to Apple's player.
+  For now, only MLS live matches play at a usable quality in Chrome, up to 1080p60. Apple's DRM limits most on-demand video to 480p or lower, which is too blurry to watch, and the extension cannot raise that. See [docs/troubleshooting.md](docs/troubleshooting.md#apples-drm-caps-on-demand-video-at-480p).
 - **Subtitles:** blocks the ones Apple turns on by itself and remembers whether you want them on or off. Apple turns them on when you mute, when you skip back 10 seconds, or when the audio language differs from the interface.
 - **Playback info overlay:** quality, dropped frames, buffer, measured bandwidth, live delay, CDN and more.
 - **Settings button:** inside Apple's control bar, with the same settings in the extension's toolbar popup.
@@ -52,7 +53,7 @@ This builds two zips in `dist/`: one for manual installation and one with `manif
 
 ## Documentation
 
-- [docs/troubleshooting.md](docs/troubleshooting.md): the highest quality Apple serves, and dropped frames caused by software video decoding.
+- [docs/troubleshooting.md](docs/troubleshooting.md): the highest quality Apple serves, how Apple's DRM caps on-demand video at 480p in Chrome, and dropped frames caused by software video decoding.
 - [docs/apple-player-internals.md](docs/apple-player-internals.md): what the extension relies on inside Apple's web player, when it was verified, and how to check it again.
 - [docs/compliance.md](docs/compliance.md): trademarks, licenses, Apple's terms, privacy and store policies, with the review log. Reviews follow [docs/compliance-review-prompt.md](docs/compliance-review-prompt.md).
 - [docs/publishing.md](docs/publishing.md): releases, making the repository public, and the Chrome Web Store.
